@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+        Forecast Data Table with Editable Fields, Filter, and PDF Export
+    </title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background: #f9fafb;
+            margin: 40px;
+            color: #333;
+        }
+
+        .no--record{
+            text-align: center
+        }
+
+        .btn-container {
+            margin: 0 auto 16px;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        input#emailNotifyInput {
+            padding: 10px 14px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #cbd5e0;
+            font-family: inherit;
+            color: #4a5568;
+            width: 250px;
+            transition: border-color 0.3s ease;
+        }
+
+        input#emailNotifyInput:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 5px rgb(49 130 206 / 0.5);
+        }
+
+        button#generatePdfBtn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        button#generatePdfBtn:hover {
+            background-color: #005197;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 24px;
+            font-size: 2rem;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            margin: auto;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            table-layout: fixed;
+        }
+
+        thead tr {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        th,
+        td {
+            padding: 12px 18px;
+            text-align: left;
+            vertical-align: middle;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .forecast-header,
+        .projected-header,
+        .comment-header {
+            width: 200px;
+            text-align: center;
+        }
+        .project-header {
+            width: 250px;
+        }
+        .resource-header,
+        .em-header {
+            width: 250px;
+        }
+        /* Filter header aligned in one line */
+        div.filter {
+            width: 95%;
+            user-select: none;
+            display: flex !important;
+            align-items: center;
+            justify-content: left;
+            gap: 8px;
+        }
+
+        /* The column label text */
+        th.filter > span {
+            flex-shrink: 0;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Wrapper for search icon and input */
+        .filterWrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            flex-shrink: 1;
+        }
+
+        .filterInput {
+            width: 0;
+            box-sizing: border-box;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e0;
+            font-family: inherit;
+            color: #4a5568;
+            opacity: 0;
+            pointer-events: none;
+            transition: width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+            flex-shrink: 0;
+            outline: none;
+        }
+
+        .filterInput.show {
+            width: 100%;
+            opacity: 1;
+            pointer-events: auto;
+            padding: 6px 12px;
+        }
+
+        .filterIcon {
+            fill: #ffff;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            user-select: none;
+            flex-shrink: 0;
+            transition: fill 0.2s;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #f7fafc;
+        }
+
+        tbody tr:hover {
+            background-color: #edf2f7;
+            transition: background-color 0.3s ease;
+        }
+
+        td.project a {
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        td.project a:hover {
+            color: #2b6cb0;
+            text-decoration: underline;
+        }
+
+        td > .actual-hours {
+            //width: -webkit-fill-available;
+            font-weight: 700;
+            color: #6b46c1;
+            text-align: center;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0px 25px;
+        }
+
+        td.forecasted-hours {
+            text-align: center;
+        }
+
+        td > .actual-hours input,
+        td > .comments input {
+            border: none;
+            background: aliceblue;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: inherit;
+            cursor: default;
+            border: 1px solid grey;
+            border-radius: 15px;
+            outline: none;
+            padding: 6px 18px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        td > .actual-hours input[readonly],
+        td > .comments input[readonly] {
+            cursor: default;
+            border: none;
+            border-radius: 0px;
+            background-color: transparent;
+            font-weight: 400;
+            padding: 0;
+            text-align: center;
+            width: 100%;
+            color: #454545;
+            text-overflow: ellipsis;
+        }
+
+        /* Actual Hours input width */
+        td > .actual-hours input {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Comment cell styling */
+        td > .comments {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        td > .comments input {
+            width: 200px;
+            font-weight: 400;
+            text-align: left;
+            cursor: default;
+            flex-shrink: 1;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        /* Editable comment input styling */
+        td > .comments input:not([readonly]) {
+            font-weight: 600;
+            cursor: text;
+            width: 100%;
+        }
+
+        button.edit-btn {
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .edit-icon {
+            fill: #6b46c1;
+            width: 18px;
+            height: 18px;
+            user-select: none;
+            transition: fill 0.2s;
+        }
+
+        button.edit-btn:hover .edit-icon {
+            fill: #4c1d95;
+        }
+
+        td > .comments {
+            color: #a0aec0;
+            font-style: normal;
+        }
+
+        .em-cell {
+            line-height: 1.3;
+            max-width: 250px;
+        }
+
+        /* .em-name {
+    font-weight: 600;
+    color: #2d3748;
+  } */
+
+        .em-email {
+            font-size: 0.875rem;
+            color: #4a5568;
+            font-style: normal;
+            display: block;
+            margin-top: 2px;
+            transition: color 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .em-email a {
+            color: #4a5568;
+            text-decoration: none;
+        }
+
+        .em-email a:hover {
+            color: #3182ce;
+            text-decoration: underline;
+        }
+
+        #pdfDownloadLink {
+            font-weight: 600;
+            color: #3182ce;
+            cursor: pointer;
+            margin-top: 12px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead tr:nth-child(1) {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            tr {
+                margin: 0 0 1rem 0;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                background: white;
+                padding: 12px 18px;
+            }
+
+            td {
+                border: none;
+                position: relative;
+                padding-left: 50%;
+                text-align: left;
+                vertical-align: top;
+                white-space: normal;
+            }
+
+            td::before {
+                position: absolute;
+                top: 12px;
+                left: 18px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 600;
+                content: attr(data-label);
+                color: #4a5568;
+            }
+
+            td > .actual-hours {
+                border: 2px solid #9f7aea;
+                background-color: #faf5ff;
+                text-align: center;
+                padding-left: 18px;
+                display: flex;
+                gap: 8px;
+            }
+
+            td > .actual-hours input,
+            td > .comments input {
+                font-size: 1rem;
+                width: 100%;
+            }
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="app-logo">
+    <img
+            src="https://v.fastcdn.co/u/573f0666/64658906-0-zd-primary-logo.svg"
+            alt="logo"
+    />
+</div>
+<h1></h1>
+<table id="forecastTable" role="table" aria-label="Forecast data table">
+    <thead>
+    <tr>
+        <th
+                class="resource-header"
+                scope="col"
+                aria-label="Resource Name Column with filter"
+        >
+            <div class="filter">
+                <span>Resource Name</span>
+                <div class="filterWrapper" id="resourceFilterWrapper">
+                    <!-- Magnifying glass icon -->
+                    <svg
+                            class="filterIcon"
+                            id="resourceFilterIcon"
+                            fill="#ffff"
+                            width="24px"
+                            height="24px"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                                d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"
+                        />
+                    </svg>
+                    <input
+                            type="text"
+                            class="filterInput"
+                            id="resourceFilterInput"
+                            placeholder="Filter Resource..."
+                            aria-label="Filter Resource Name Column"
+                    />
+                </div>
+            </div>
+        </th>
+        <th class="em-header" scope="col" aria-label="EM Column with filter">
+            <div class="filter">
+                <span>EM</span>
+                <div class="filterWrapper" id="emFilterWrapper">
+                    <!-- Magnifying glass icon -->
+                    <svg
+                            class="filterIcon"
+                            id="emFilterIcon"
+                            fill="#ffff"
+                            width="24px"
+                            height="24px"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                                d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"
+                        />
+                    </svg>
+                    <input
+                            type="text"
+                            class="filterInput"
+                            id="emFilterInput"
+                            placeholder="Filter EM..."
+                            aria-label="Filter EM Column"
+                    />
+                </div>
+            </div>
+        </th>
+        <th class="project-header" scope="col">Project</th>
+        <th class="forecast-header" scope="col">
+            Current Forecast <br />
+            (Hours)
+        </th>
+        <th class="projected-header" scope="col">
+            Proposed Forecast<br />(Hours)
+        </th>
+        <th class="comment-header" scope="col">Comment</th>
+    </tr>
+    </thead>
+    <tbody id="table-body" role="rowgroup">
+    <!-- Rows will be rendered here -->
+    </tbody>
+</table>
+<script>
+    const resourceFilterInput = document.getElementById(
+        "resourceFilterInput"
+    );
+    const resourceFilterIcon = document.getElementById("resourceFilterIcon");
+    const emFilterInput = document.getElementById("emFilterInput");
+    const emFilterIcon = document.getElementById("emFilterIcon");
+    const tableBody = document.getElementById("table-body");
+    const generatePdfBtn = document.getElementById("generatePdfBtn");
+    const emailNotifyInput = document.getElementById("emailNotifyInput");
+    const API_KEY =
+        "b606eb0b74f8ed97c671b7dff93cf390da30375ee4aef6cf12c0f19a18f3fb4e";
+    // Fetch data from API instead of hardcoded data
+    const BASE_URL = "https://apim.workato.com/playground/forecast-v1/";
+
+    //Basic auth payload
+    const subDomain = "zendesk-forecast";
+    const clientId = "zendesk_forecast";
+    const clientSecret =
+        "0e6057704d6f3606046dcd2bd2a1b1282248443fa24ba138c272bb09768ed493";
+    const redirectUrl =
+        "https://zendesk-forecast.zendesk.com/hc/en-us/p/timesheet";
+
+    let data = [];
+
+    if (getAuthToken()) {
+        actUserDetails(getAuthToken());
+    } else {
+        authenticateUser();
+    }
+
+    // Helper - parse URL hash params
+    function parseHashParams(hash) {
+        if (!hash) return {};
+        return hash
+            .substring(1)
+            .split("&")
+            .reduce((res, item) => {
+                const [key, val] = item.split("=");
+                res[key] = decodeURIComponent(val);
+                return res;
+            }, {});
+    }
+
+    function setAuthLocalStorage(token) {
+        localStorage.setItem("authtoken", token);
+    }
+
+    function getAuthToken() {
+        return localStorage.getItem("authtoken");
+    }
+
+    function handleRedirection() {
+        localStorage.clear();
+        alert("User authentication failed");
+        window.location.href =
+            "https://zendesk-forecast.zendesk.com/hc/en-us/p/Login";
+    }
+
+    function authenticateUser() {
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        const params = parseHashParams(window.location.search);
+        if (params.code) {
+            const raw = JSON.stringify({
+                grant_type: "authorization_code",
+                code: params.code,
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uri: redirectUrl,
+                scope: "read",
+            });
+
+            const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow",
+            };
+
+            fetch(`https://${subDomain}.zendesk.com/oauth/tokens`, requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    const accessToken = result.access_token;
+                    setAuthLocalStorage(accessToken);
+                    if (accessToken) {
+                        actUserDetails(accessToken);
+                    } else {
+                        handleRedirection();
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    handleRedirection();
+                });
+        } else {
+            handleRedirection();
+        }
+    }
+
+    function actUserDetails(authToken) {
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${authToken}`);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            redirect: "follow",
+        };
+
+        fetch(
+            `https://${subDomain}.zendesk.com/api/v2/users/me.json`,
+            requestOptions
+        )
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.user) {
+                    initForecastData(data.user);
+                } else {
+                    handleRedirection();
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                handleRedirection();
+            });
+    }
+
+    function initForecastData(userDetails) {
+        console.log("userDetails||", userDetails);
+        const myHeadersGet = new Headers();
+        myHeadersGet.append("API-TOKEN", API_KEY);
+
+        const requestOptionsGet = {
+            method: "GET",
+            headers: myHeadersGet,
+            redirect: "follow",
+        };
+
+        fetch(`${BASE_URL}certinia-dump`, requestOptionsGet)
+            .then((response) => response.json())
+            .then((result) => {
+                data = result?.data.map((item) => ({
+                    ID: item.ID || "",
+                    Region: item.Region || "",
+                    EM: item.EM || "",
+                    Project: item.Project || "",
+                    link: item.link || "#",
+                    ResourceName: item.ResourceName || "",
+                    ForecastedHours: item.ForecastedHours || 0,
+                    ProjectedHours: item.ProjectedHours,
+                    Comment: item.Comment || "",
+                }));
+                data = data.filter((item) => {
+                    if (
+                        userDetails.name.replaceAll(" ", "").toLowerCase() === item.ResourceName.replaceAll(" ", "").toLowerCase()
+                    ) {
+                        return item;
+                    }
+                });
+                console.log("data||", data);
+                if (data.length) {
+                    renderTableRows();
+                } else {
+                    let tableComp = document.querySelector("#forecastTable");
+                    tableComp.insertAdjacentHTML("afterend",`<p class="no--record"><strong>No Record Found</strong><p>`);
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                alert("Failed to load forecast data.");
+            });
+    }
+
+    function extractName(em) {
+        const match = em.match(/^([^<]+)/);
+        if (match) return match[1].trim();
+        return em;
+    }
+
+    function extractEmail(em) {
+        const match = em.match(/<([^>]+)>/);
+        if (match) return match[1].trim();
+        return "";
+    }
+
+    function renderTableRows() {
+        tableBody.innerHTML = "";
+        data.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.setAttribute("id", row.ID);
+            tr.setAttribute("role", "row");
+
+            // Resource Name
+            let td = document.createElement("td");
+            td.setAttribute("data-label", "Resource Name");
+            td.setAttribute("role", "cell");
+            td.textContent = row.ResourceName;
+            tr.appendChild(td);
+
+            // EM with email link
+            td = document.createElement("td");
+            td.classList.add("em-cell");
+            td.setAttribute("data-label", "EM");
+            td.setAttribute("role", "cell");
+            const nameSpan = document.createElement("span");
+            nameSpan.classList.add("em-name");
+            nameSpan.textContent = extractName(row.EM);
+            const emailSpan = document.createElement("span");
+            emailSpan.classList.add("em-email");
+            const emailLink = document.createElement("a");
+            emailLink.href = "mailto:" + extractEmail(row.EM);
+            emailLink.title = extractEmail(row.EM);
+            emailLink.textContent = extractEmail(row.EM);
+            emailSpan.appendChild(emailLink);
+            td.appendChild(nameSpan);
+            td.appendChild(emailSpan);
+            tr.appendChild(td);
+
+            // Project
+            td = document.createElement("td");
+            td.classList.add("project");
+            td.setAttribute("data-label", "Project");
+            td.setAttribute("role", "cell");
+            const projectLink = document.createElement("a");
+            projectLink.href = row.link || "#";
+            projectLink.title = row.Project;
+            projectLink.textContent = row.Project;
+            td.appendChild(projectLink);
+            tr.appendChild(td);
+
+            // Forecasted Hours
+            td = document.createElement("td");
+            td.classList.add("forecasted-hours");
+            td.setAttribute("data-label", "Forecasted Hours");
+            td.setAttribute("role", "cell");
+            td.textContent = row.ForecastedHours;
+            tr.appendChild(td);
+
+            // Actual Hours (input + edit button)
+            td = document.createElement("td");
+            const divEle = document.createElement("div");
+            td.appendChild(divEle);
+            divEle.classList.add("actual-hours");
+            divEle.setAttribute("data-label", "Actual Hours");
+            divEle.setAttribute("role", "cell");
+
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = "0";
+            input.step = "0.1";
+            input.value = row.ProjectedHours;
+            input.setAttribute("readonly", "");
+            input.setAttribute(
+                "aria-label",
+                `Actual Hours for ${extractName(row.EM)}`
+            );
+            divEle.appendChild(input);
+
+            const button = document.createElement("button");
+            button.classList.add("edit-btn");
+            button.title = "Edit";
+            button.setAttribute(
+                "aria-label",
+                `Edit Actual Hours for ${extractName(row.EM)}`
+            );
+            button.innerHTML = `
+          <svg
+            fill="#000000"
+            width="18px"
+            height="18px"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M22,7.24a1,1,0,0,0-.29-.71L17.47,2.29A1,1,0,0,0,16.76,2a1,1,0,0,0-.71.29L13.22,5.12h0L2.29,16.05a1,1,0,0,0-.29.71V21a1,1,0,0,0,1,1H7.24A1,1,0,0,0,8,21.71L18.87,10.78h0L21.71,8a1.19,1.19,0,0,0,.22-.33,1,1,0,0,0,0-.24.7.7,0,0,0,0-.14ZM6.83,20H4V17.17l9.93-9.93,2.83,2.83ZM18.17,8.66,15.34,5.83l1.42-1.41,2.82,2.82Z"
+            />
+          </svg>
+        `;
+            divEle.appendChild(button);
+            tr.appendChild(td);
+
+            // Comment (input + edit button)
+            td = document.createElement("td");
+            const divComment = document.createElement("div");
+            td.appendChild(divComment);
+            divComment.classList.add("comments");
+            divComment.setAttribute("data-label", "Comment");
+            divComment.setAttribute("role", "cell");
+
+            const commentInput = document.createElement("input");
+            commentInput.type = "text";
+            commentInput.value = row.Comment || "";
+            commentInput.setAttribute("readonly", "");
+            commentInput.title = row.Comment || "";
+            commentInput.setAttribute(
+                "aria-label",
+                `Comment for ${extractName(row.EM)}`
+            );
+            divComment.appendChild(commentInput);
+
+            const commentBtn = document.createElement("button");
+            commentBtn.classList.add("edit-btn");
+            commentBtn.title = "Edit";
+            commentBtn.setAttribute(
+                "aria-label",
+                `Edit Comment for ${extractName(row.EM)}`
+            );
+            commentBtn.innerHTML = `
+          <svg
+            fill="#000000"
+            width="18px"
+            height="18px"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M22,7.24a1,1,0,0,0-.29-.71L17.47,2.29A1,1,0,0,0,16.76,2a1,1,0,0,0-.71.29L13.22,5.12h0L2.29,16.05a1,1,0,0,0-.29.71V21a1,1,0,0,0,1,1H7.24A1,1,0,0,0,8,21.71L18.87,10.78h0L21.71,8a1.19,1.19,0,0,0,.22-.33,1,1,0,0,0,0-.24.7.7,0,0,0,0-.14ZM6.83,20H4V17.17l9.93-9.93,2.83,2.83ZM18.17,8.66,15.34,5.83l1.42-1.41,2.82,2.82Z"
+            />
+          </svg>
+        `;
+            divComment.appendChild(commentBtn);
+            tr.appendChild(td);
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // Show/hide filter input toggle - for both filters
+    function setupFilterToggle(filterInput, filterIcon) {
+        filterIcon.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (filterInput.classList.contains("show")) {
+                hideFilterInput(filterInput);
+            } else {
+                showFilterInput(filterInput);
+            }
+        });
+
+        filterIcon.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                filterIcon.click();
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            if (
+                !filterInput.contains(e.target) &&
+                !filterIcon.contains(e.target)
+            ) {
+                if (
+                    filterInput.classList.contains("show") &&
+                    e.target.parentNode &&
+                    !e.target.parentNode.closest("#forecastTable")
+                ) {
+                    hideFilterInput(filterInput);
+                }
+            }
+        });
+    }
+
+    function showFilterInput(filterInput) {
+        filterInput.classList.add("show");
+        filterInput.focus();
+    }
+
+    function hideFilterInput(filterInput) {
+        filterInput.classList.remove("show");
+        filterInput.value = "";
+        filterRows();
+    }
+
+    setupFilterToggle(resourceFilterInput, resourceFilterIcon);
+    setupFilterToggle(emFilterInput, emFilterIcon);
+
+    // Filter rows on input change for both filters combined
+    resourceFilterInput.addEventListener("input", filterRows);
+    emFilterInput.addEventListener("input", filterRows);
+
+    function filterRows() {
+        const resourceValue = resourceFilterInput.value.trim().toLowerCase();
+        const emValue = emFilterInput.value.trim().toLowerCase();
+
+        Array.from(tableBody.rows).forEach((row) => {
+            const resourceName = row
+                .querySelector('td[data-label="Resource Name"]')
+                .textContent.toLowerCase();
+            const emName = row
+                .querySelector('td[data-label="EM"] .em-name')
+                .textContent.toLowerCase();
+
+            const matchesResource = resourceName.includes(resourceValue);
+            const matchesEm = emName.includes(emValue);
+
+            if (matchesResource && matchesEm) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+
+    // New function: Update API call to save ProjectedHour and Comment
+    async function updateForecastRecord(ID, projectedHour, comment) {
+        const myHeaders = new Headers();
+        myHeaders.append("API-TOKEN", API_KEY);
+        myHeaders.append("Content-Type", "application/json");
+
+        const raw = JSON.stringify({
+            Comment: comment,
+            ProjectedHour: projectedHour,
+        });
+
+        const url = `${BASE_URL}${ID}`;
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+        };
+
+        try {
+            const response = await fetch(url, requestOptions);
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+            }
+            const text = await response.text();
+            return true;
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update forecast record: " + error.message);
+            return false;
+        }
+    }
+
+    // Edit toggle code remains unchanged...
+    tableBody.addEventListener("click", async (event) => {
+        const btn = event.target.closest("button.edit-btn");
+        if (!btn) return;
+
+        const divActual = btn.closest("div.actual-hours");
+        if (divActual) {
+            const input = divActual.querySelector("input");
+            const tr = btn.closest("tr");
+
+            if (input.hasAttribute("readonly")) {
+                input.removeAttribute("readonly");
+                input.focus();
+                btn.title = "Save";
+                btn.setAttribute("aria-label", "Save Actual Hours");
+                btn.innerHTML = `
+            <svg width="18px" height="18px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <rect width="16" height="16" id="icon-bound" fill="none" />
+              <path d="M0,9.014L1.414,7.6L5.004,11.189L14.593,1.6L16.007,3.014L5.003,14.017L0,9.014Z" />
+            </svg>
+          `;
+            } else {
+                const newValue = parseFloat(input.value);
+                if (isNaN(newValue) || newValue < 0) {
+                    alert(
+                        "Please enter a valid non-negative number for Actual Hours."
+                    );
+                    input.focus();
+                    return;
+                }
+                const commentInput = tr.querySelector("div.comments input");
+                const currentComment = commentInput.value;
+                const ID = tr.getAttribute("id");
+                input.setAttribute("disabled", "");
+
+                input.setAttribute("readonly", "");
+                input.removeAttribute("disabled");
+                btn.disabled = false;
+                btn.title = "Edit";
+                btn.setAttribute("aria-label", "Edit Actual Hours");
+                btn.innerHTML = `
+            <svg
+              fill="#000000"
+              width="18px"
+              height="18px"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M22,7.24a1,1,0,0,0-.29-.71L17.47,2.29A1,1,0,0,0,16.76,2a1,1,0,0,0-.71.29L13.22,5.12h0L2.29,16.05a1,1,0,0,0-.29.71V21a1,1,0,0,0,1,1H7.24A1,1,0,0,0,8,21.71L18.87,10.78h0L21.71,8a1.19,1.19,0,0,0,.22-.33,1,1,0,0,0,0-.24.7.7,0,0,0,0-.14ZM6.83,20H4V17.17l9.93-9.93,2.83,2.83ZM18.17,8.66,15.34,5.83l1.42-1.41,2.82,2.82Z"
+              />
+            </svg>`;
+
+                await updateForecastRecord(ID, newValue, currentComment);
+            }
+        }
+
+        const divComment = btn.closest("div.comments");
+        if (divComment) {
+            const input = divComment.querySelector("input");
+            const tr = btn.closest("tr");
+
+            if (input.hasAttribute("readonly")) {
+                input.removeAttribute("readonly");
+                input.focus();
+                btn.title = "Save";
+                btn.setAttribute("aria-label", "Save Comment");
+                btn.innerHTML = `
+            <svg width="18px" height="18px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <rect width="16" height="16" id="icon-bound" fill="none" />
+              <path d="M0,9.014L1.414,7.6L5.004,11.189L14.593,1.6L16.007,3.014L5.003,14.017L0,9.014Z" />
+            </svg>
+          `;
+            } else {
+                const newComment = input.value;
+                if (!newComment) {
+                    alert("Please add comment");
+                    input.focus();
+                    return;
+                }
+                const actualInput = tr.querySelector("div.actual-hours input");
+                const projectedHour = parseFloat(actualInput.value);
+                const ID = tr.getAttribute("id");
+                input.setAttribute("disabled", "");
+                input.setAttribute("readonly", "");
+                input.removeAttribute("disabled");
+                input.title = newComment;
+
+                btn.disabled = false;
+                btn.title = "Edit";
+                btn.setAttribute("aria-label", "Edit Comment");
+                btn.innerHTML = `
+            <svg
+              fill="#000000"
+              width="18px"
+              height="18px"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M22,7.24a1,1,0,0,0-.29-.71L17.47,2.29A1,1,0,0,0,16.76,2a1,1,0,0,0-.71.29L13.22,5.12h0L2.29,16.05a1,1,0,0,0-.29.71V21a1,1,0,0,0,1,1H7.24A1,1,0,0,0,8,21.71L18.87,10.78h0L21.71,8a1.19,1.19,0,0,0,.22-.33,1,1,0,0,0,0-.24.7.7,0,0,0,0-.14ZM6.83,20H4V17.17l9.93-9.93,2.83,2.83ZM18.17,8.66,15.34,5.83l1.42-1.41,2.82,2.82Z"
+              />
+            </svg>`;
+
+                await updateForecastRecord(ID, projectedHour, newComment);
+            }
+        }
+    });
+
+    // Generate PDF grouped by EM with each EM on a separate page in a single PDF
+    generatePdfBtn.addEventListener("click", async () => {
+        const emailToNotify = emailNotifyInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailToNotify)) {
+            alert("Please enter a valid email address.");
+            emailNotifyInput.focus();
+            return;
+        }
+
+        try {
+            if (emailToNotify) {
+                alert(`Email notifications to ${emailToNotify} has been sent`);
+
+                const myHeaders = new Headers();
+                myHeaders.append("API-TOKEN", API_KEY);
+                myHeaders.append("Content-Type", "application/json");
+
+                const raw = JSON.stringify({
+                    email: emailToNotify,
+                    file: "",
+                });
+
+                const requestOptions = {
+                    method: "POST",
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: "follow",
+                };
+
+                fetch(`${BASE_URL}email`, requestOptions)
+                    .then((response) => response.text())
+                    .then((result) => console.log(result))
+                    .catch((error) => console.error(error));
+            }
+        } catch (err) {
+            alert("Error generating PDF file: " + err);
+        }
+    });
+</script>
+</body>
+</html>

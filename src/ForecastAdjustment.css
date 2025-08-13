@@ -1,0 +1,397 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+body {
+    font-family: "Inter", Arial, sans-serif;
+    background: #f9fafb;
+    margin: 40px;
+    color: #333;
+}
+.no--record{
+    text-align: center
+}
+
+.btn-container {
+    margin: 0 auto 16px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+input#emailNotifyInput {
+    padding: 10px 14px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    font-family: inherit;
+    color: #4a5568;
+    width: 250px;
+    transition: border-color 0.3s ease;
+}
+
+input#emailNotifyInput:focus {
+    outline: none;
+    border-color: #3182ce;
+    box-shadow: 0 0 5px rgb(49 130 206 / 0.5);
+}
+
+button#generatePdfBtn {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+button#generatePdfBtn:hover {
+    background-color: #005197;
+}
+
+h1 {
+    text-align: center;
+    font-weight: 700;
+    color: #4a5568;
+    margin-bottom: 24px;
+    font-size: 2rem;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: auto;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+thead tr {
+    background-color: #4a5568;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+th,
+td {
+    padding: 12px 18px;
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+td {
+    border-bottom: 1px solid #e2e8f0;
+}
+.forecast-header,
+.projected-header,
+.comment-header {
+    width: 200px;
+    text-align: center;
+}
+.project-header {
+    width: 250px;
+}
+.resource-header,
+.em-header {
+    width: 250px;
+}
+/* Filter header aligned in one line */
+div.filter {
+    width: 95%;
+    user-select: none;
+    display: flex !important;
+    align-items: center;
+    justify-content: left;
+    gap: 8px;
+}
+
+/* The column label text */
+th.filter > span {
+    flex-shrink: 0;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Wrapper for search icon and input */
+.filterWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    flex-shrink: 1;
+}
+
+.filterInput {
+    width: 0;
+    box-sizing: border-box;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e0;
+    font-family: inherit;
+    color: #4a5568;
+    opacity: 0;
+    pointer-events: none;
+    transition: width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    flex-shrink: 0;
+    outline: none;
+}
+
+.filterInput.show {
+    width: 100%;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 6px 12px;
+}
+
+.filterIcon {
+    fill: #ffff;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    transition: fill 0.2s;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f7fafc;
+}
+
+tbody tr:hover {
+    background-color: #edf2f7;
+    transition: background-color 0.3s ease;
+}
+
+td.project a {
+    color: #3182ce;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+td.project a:hover {
+    color: #2b6cb0;
+    text-decoration: underline;
+}
+
+td > .actual-hours {
+    width: -webkit-fill-available;
+    font-weight: 700;
+    color: #6b46c1;
+    text-align: center;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0px 25px;
+}
+
+td.forecasted-hours {
+    text-align: center;
+}
+
+td > .actual-hours input,
+td > .comments input {
+    border: none;
+    background: aliceblue;
+    font-weight: 700;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: default;
+    border: 1px solid grey;
+    border-radius: 15px;
+    outline: none;
+    padding: 6px 18px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+td > .actual-hours input[readonly],
+td > .comments input[readonly] {
+    cursor: default;
+    border: none;
+    border-radius: 0px;
+    background-color: transparent;
+    font-weight: 400;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    color: #454545;
+    text-overflow: ellipsis;
+}
+
+/* Actual Hours input width */
+td > .actual-hours input {
+    width: 100%;
+    text-align: center;
+}
+
+/* Comment cell styling */
+td > .comments {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+td > .comments input {
+    width: 200px;
+    font-weight: 400;
+    text-align: left;
+    cursor: default;
+    flex-shrink: 1;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Editable comment input styling */
+td > .comments input:not([readonly]) {
+    font-weight: 600;
+    cursor: text;
+    width: 100%;
+}
+
+button.edit-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.edit-icon {
+    fill: #6b46c1;
+    width: 18px;
+    height: 18px;
+    user-select: none;
+    transition: fill 0.2s;
+}
+
+button.edit-btn:hover .edit-icon {
+    fill: #4c1d95;
+}
+
+td > .comments {
+    color: #a0aec0;
+    font-style: normal;
+}
+
+.em-cell {
+    line-height: 1.3;
+    max-width: 250px;
+}
+
+/* .em-name {
+font-weight: 600;
+color: #2d3748;
+} */
+
+.em-email {
+    font-size: 0.875rem;
+    color: #4a5568;
+    font-style: normal;
+    display: block;
+    margin-top: 2px;
+    transition: color 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.em-email a {
+    color: #4a5568;
+    text-decoration: none;
+}
+
+.em-email a:hover {
+    color: #3182ce;
+    text-decoration: underline;
+}
+
+#pdfDownloadLink {
+    font-weight: 600;
+    color: #3182ce;
+    cursor: pointer;
+    margin-top: 12px;
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+
+    thead tr:nth-child(1) {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin: 0 0 1rem 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        background: white;
+        padding: 12px 18px;
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+        vertical-align: top;
+        white-space: normal;
+    }
+
+    td::before {
+        position: absolute;
+        top: 12px;
+        left: 18px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        content: attr(data-label);
+        color: #4a5568;
+    }
+
+    td > .actual-hours {
+        border: 2px solid #9f7aea;
+        background-color: #faf5ff;
+        text-align: center;
+        padding-left: 18px;
+        display: flex;
+        gap: 8px;
+    }
+
+    td > .actual-hours input,
+    td > .comments input {
+        font-size: 1rem;
+        width: 100%;
+    }
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

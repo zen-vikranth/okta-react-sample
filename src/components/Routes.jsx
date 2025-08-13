@@ -18,6 +18,7 @@ import Home from '../pages/Home';
 import Loading from './Loading';
 import Messages from '../pages/Messages';
 import Profile from '../pages/Profile';
+import ForecastAdjustment from '../pages/ForecastAdjustment';
 
 const AppRoutes = () => {
   return (
@@ -29,6 +30,9 @@ const AppRoutes = () => {
       </Route>
       <Route path="/profile" element={<RequiredAuth/>}>
         <Route path="" element={<Profile/>}/>
+      </Route>
+      <Route path="/ForecastAdjustment" element={<RequiredAuth/>}>
+        <Route path="" element={<ForecastAdjustment/>}/>
       </Route>
     </Routes>
   );

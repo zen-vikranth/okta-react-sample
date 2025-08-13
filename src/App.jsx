@@ -30,8 +30,8 @@ const App = () => {
 
   return (
     <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
-      <Container text style={{marginTop: '7em'}} className="App">
-        <header className="App-header">
+      <Container fluid style={{marginTop: '5em'}} >
+        <header >
           <Navbar/>
         </header>
         <main>
