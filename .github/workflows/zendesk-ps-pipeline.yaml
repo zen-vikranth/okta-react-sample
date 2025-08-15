@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: okta-react-sample
+  IMAGE_NAME: forecaster
 
 jobs:
   build-and-deploy:
