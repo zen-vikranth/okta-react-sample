@@ -12,7 +12,11 @@ RUN \
 
 COPY . .
 
+RUN pwd
+
 RUN yarn build
+
+RUN ls -lrt
 
 # ---- Production image ----
 FROM nginx:1.25-alpine
