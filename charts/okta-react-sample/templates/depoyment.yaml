@@ -1,31 +1,29 @@
-# Default values for okta-react-sample
-
-image:
-  repository: "nginx"   # UPDATED at deploy-time by GitHub Actions workflow
-  tag: "latest"         # UPDATED at deploy-time
-  pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-  port: 80
-
-replicaCount: 2
-
-resources: {}
-#  limits:
-#    cpu: 100m
-#    memory: 128Mi
-#  requests:
-#    cpu: 100m
-#    memory: 128Mi
-
-# Uncomment to configure ingress
-# ingress:
-#   enabled: false
-#   className: ""
-#   annotations: {}
-#   hosts:
-#     - host: chart-example.local
-#       paths:
-#         - /
-#   tls: []
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "okta-react-sample.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "okta-react-sample.name" . }}
+    helm.sh/chart: {{ include "okta-react-sample.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "okta-react-sample.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "okta-react-sample.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          # add other container configuration here
