@@ -1,4 +1,6 @@
 # Default values for okta-react-sample
+serviceAccount:
+  name: service-forecaster-zendesk-ps
 
 image:
   repository: "nginx"   # UPDATED at deploy-time by GitHub Actions workflow
