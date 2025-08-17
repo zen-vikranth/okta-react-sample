@@ -91,7 +91,7 @@ jobs:
             --set image.tag=${IMAGE##*:} \
             --wait
 
-      - name: Show deployment status
+      - name: Show the deployment status
         env:
           K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
           HELM_RELEASE: ${{ secrets.HELM_RELEASE }}
