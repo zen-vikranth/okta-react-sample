@@ -13,6 +13,8 @@ service:
 
 replicaCount: 2
 
+containerPort: 80
+
 resources: {}
 #  limits:
 #    cpu: 100m
