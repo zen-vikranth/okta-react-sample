@@ -68,10 +68,7 @@ jobs:
       - name: Update Version
         run: |
           echo "IMAGE TAG: " $IMAGE
-
-          # Assumes $IMAGE is like "myrepo/nginx:tag" or "nginx:tag" or just "nginx"
-          # See below for handling cases where $IMAGE might lack a tag
-          YAML_FILE="/charts/okta-react-sample/Values.yaml"
+          YAML_FILE="charts/okta-react-sample/Values.yaml"
           
           # If $IMAGE does not contain a ":", append ":latest"
           IMAGE_WITH_TAG="${IMAGE}"
