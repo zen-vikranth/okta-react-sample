@@ -84,9 +84,6 @@ jobs:
           chmod +x argocd
           sudo mv argocd /usr/local/bin/argocd
 
-      - name: Update Helm/manifest version (if required)
-        # (Insert custom steps here to update your chart/manifest/tag, if applicable)
-
       - name: Sync ArgoCD Application
         env:
           ARGOCD_SERVER: argocdsecurecloud.zendeskservices.getbase.com
