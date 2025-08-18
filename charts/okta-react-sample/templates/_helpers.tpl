@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 {{- define "okta-react-sample.fullname" -}}
 {{- $name := default .Chart.Name .Values.nameOverride -}}
 {{- $fullname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- if .values.fullnameOverride -}}
+{{- if .Values.fullnameOverride -}}
 {{- printf "%s" .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
 {{- $fullname -}}
