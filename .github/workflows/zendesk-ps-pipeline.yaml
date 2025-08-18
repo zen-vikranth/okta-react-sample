@@ -76,20 +76,27 @@ jobs:
         run: |
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
           cat ~/.kube/config
-          kubectl get ns
 
-      - name: Helm upgrade (install if needed)
-        env:
-          IMAGE: ${{ env.IMAGE }}
-          HELM_RELEASE: ${{ secrets.HELM_RELEASE }}
-          HELM_CHART_PATH: ${{ secrets.HELM_CHART_PATH }}
-          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+      - name: Install ArgoCD CLI
         run: |
-          helm upgrade --install $HELM_RELEASE $HELM_CHART_PATH \
-            --namespace $K8S_NAMESPACE \
-            --set image.repository=${IMAGE%:*} \
-            --set image.tag=${IMAGE##*:} \
-            --wait
+          curl -sSL -o argocd \
+            https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/argocd
+
+      - name: Update Helm/manifest version (if required)
+        # (Insert custom steps here to update your chart/manifest/tag, if applicable)
+
+      - name: Sync ArgoCD Application
+        env:
+          ARGOCD_SERVER: argocd.example.com            # Change to your ArgoCD server FQDN or IP
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          APP_NAME: forecaster-sandbox                 # Your ArgoCD Application name
+        run: |
+          argocd login $ARGOCD_SERVER --insecure --auth-token $ARGOCD_AUTH_TOKEN
+          argocd app sync $APP_NAME
+          # Optionally, wait for health/successful sync:
+          argocd app wait $APP_NAME --health --timeout 300
 
       - name: Show the deployment status
         env:
