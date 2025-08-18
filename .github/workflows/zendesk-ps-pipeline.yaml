@@ -56,13 +56,6 @@ jobs:
           docker push $IMAGE
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          kubectl version --client
-
       - name: Install Helm
         env:
           HELM_VERSION: ${{ secrets.HELM_VERSION }}
@@ -72,10 +65,28 @@ jobs:
           rm -rf linux-amd64
           helm version
 
-      - name: Update kubeconfig
+      - name: Update Version
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
-          cat ~/.kube/config
+          echo "IMAGE TAG: " $IMAGE
+
+          # Assumes $IMAGE is like "myrepo/nginx:tag" or "nginx:tag" or just "nginx"
+          # See below for handling cases where $IMAGE might lack a tag
+          YAML_FILE="../../charts/okta-react-sample/Values.yaml"
+          
+          # If $IMAGE does not contain a ":", append ":latest"
+          IMAGE_WITH_TAG="${IMAGE}"
+          if [[ "$IMAGE_WITH_TAG" != *:* ]]; then
+            IMAGE_WITH_TAG="${IMAGE_WITH_TAG}:latest"
+          fi
+
+          # Extract repository part (everything before the last ":")
+          IMAGE_REPO="${IMAGE_WITH_TAG%:*}"
+          # Extract tag part (everything after the last ":")
+          IMAGE_TAG="${IMAGE_WITH_TAG##*:}"
+          
+          # Now use sed to update values.yaml in place
+          sed -i -E "s|^( *repository:).*|\1 \"${IMAGE_REPO}\"|" "$YAML_FILE"
+          sed -i -E "s|^( *tag:).*|\1 \"${IMAGE_TAG}\"|" "$YAML_FILE"
 
       - name: Install ArgoCD CLI
         run: |
