@@ -22,7 +22,7 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ default 152470986350.dkr.ecr.us-east-1.amazonaws.com/zendesk-ps/forecaster .Values.image.repository }}:{{ default 44dbed1 .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.containerPort }}
