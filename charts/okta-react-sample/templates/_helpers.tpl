@@ -2,17 +2,17 @@
 Expand the name of the chart.
 */}}
 {{- define "okta-react-sample.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Chart.Name .values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Create a default fully qualified app name.
 */}}
 {{- define "okta-react-sample.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := default .Chart.Name .values.nameOverride -}}
 {{- $fullname := printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- if .Values.fullnameOverride -}}
-{{- printf "%s" .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- if .values.fullnameOverride -}}
+{{- printf "%s" .values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
 {{- $fullname -}}
 {{- end -}}
