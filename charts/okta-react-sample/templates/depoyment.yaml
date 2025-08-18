@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .values.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "okta-react-sample.name" . }}
@@ -19,11 +19,11 @@ spec:
         app.kubernetes.io/name: {{ include "okta-react-sample.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
+      serviceAccountName: {{ .values.serviceAccount.name }}
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .values.image.repository }}:{{ .values.image.tag }}"
+          imagePullPolicy: {{ .values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.containerPort }}
+            - containerPort: {{ .values.containerPort }}
           # add other container configuration here
