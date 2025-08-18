@@ -5,9 +5,9 @@ metadata:
   labels:
     app: {{ include "okta-react-sample.name" . }}
 spec:
-  type: {{ default "ClusterIP" .Values.service.type }}
+  type: {{ default "ClusterIP" .values.service.type }}
   ports:
-    - port: {{ default 80 .Values.service.port }}
+    - port: {{ default 80 .values.service.port }}
       targetPort: 80
   selector:
     app: {{ include "okta-react-sample.name" . }}
