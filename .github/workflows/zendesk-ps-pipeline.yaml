@@ -89,11 +89,11 @@ jobs:
 
       - name: Sync ArgoCD Application
         env:
-          ARGOCD_SERVER: argocd.example.com            # Change to your ArgoCD server FQDN or IP
-          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-          APP_NAME: forecaster-sandbox                 # Your ArgoCD Application name
+          ARGOCD_SERVER: argocdsecurecloud.zendeskservices.getbase.com
+          ARGOCD_SERVICE_ACCOUNT_GA_PIPELINE_PWD: ${{ secrets.ARGOCD_SERVICE_ACCOUNT_GA_PIPELINE }}
+          APP_NAME: forecaster-sandbox
         run: |
-          argocd login $ARGOCD_SERVER --insecure --auth-token $ARGOCD_AUTH_TOKEN
+          argocd login  --username argocd-svc-account-ga-pipeline --password $ARGOCD_SERVICE_ACCOUNT_GA_PIPELINE_PWD
           argocd app sync $APP_NAME
           # Optionally, wait for health/successful sync:
           argocd app wait $APP_NAME --health --timeout 300
