@@ -85,6 +85,8 @@ jobs:
           sed -i -E "s|^( *repository:).*|\1 \"${IMAGE_REPO}\"|" "$YAML_FILE"
           sed -i -E "s|^( *tag:).*|\1 \"${IMAGE_TAG}\"|" "$YAML_FILE"
 
+          cat $YAML_FILE
+
       - name: Install ArgoCD CLI
         run: |
           curl -sSL -o argocd \
