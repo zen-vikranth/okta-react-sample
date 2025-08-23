@@ -106,10 +106,6 @@ jobs:
           # Optionally, wait for health/successful sync:
           argocd app wait $APP_NAME --health --timeout 300
 
-      - name: Show the deployment status
-        env:
-          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
-          HELM_RELEASE: ${{ secrets.HELM_RELEASE }}
+      - name: Check ArgoCD Sync Status
         run: |
-          DEPLOY=$(kubectl get deploy -n $K8S_NAMESPACE -l app.kubernetes.io/instance=$HELM_RELEASE -o jsonpath='{.items[0].metadata.name}')
-          kubectl rollout status deployment/$DEPLOY -n $K8S_NAMESPACE
+          argocd app get forecaster-sandbox
